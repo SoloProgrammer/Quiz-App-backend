@@ -1,0 +1,95 @@
+{
+    "questionnaire_id":"React_and_JS_skills_questionnaire",
+    "title":"Assesment of React & Javascript skills",
+    "time-required":"15 minutes",
+    "comments":"This questionnaire is designed to access your level of proficiency in React and Javascript.",
+    "questions":[
+        {
+            "id":1,
+            "question":"What makes React faster?",
+            "category":"React",
+            "answers":[
+                {
+                    "id":1,
+                    "answer":"Virtual Dom",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"One way data binding",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"Reusing Components",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"Duplicating Code",
+                    "isCorrect":false
+                }
+            ],
+            "comment":""
+        },
+        {
+            "id":2,
+            "question":"What is state in React?",
+            "category":"React",
+            "answers":[
+                {
+                    "id":1,
+                    "answer":"Normal variable",
+                    "isCorrect":false
+                },
+                {
+                    "id":1,
+                    "answer":"Vaiable to store only objects",
+                    "isCorrect":false
+                },
+                {
+                    "id":1,
+                    "answer":"Variable to store data of any types",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"Variable that causes rerendering after updation",
+                    "isCorrect":true
+                }
+            ],
+            "comment":""
+        },
+        {
+            "id":3,
+            "question":"What is compomnent in React",
+            "category":"React",
+            "answers":[
+                {
+                    "id":1,
+                    "answer":"Its a regular JS function",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"Its an HTML element",
+                    "isCorrect":false
+                },
+                {
+                    "id":1,
+                    "answer":"It's a function that returns the JSX",
+                    "isCorrect":true
+                },
+                {
+                    "id":1,
+                    "answer":"It is renposible for rendering our app's UI",
+                    "isCorrect":true
+                }
+            ],
+            "comment":""
+        }
+
+    ],
+    "started":false,
+    "ended":false
+}
