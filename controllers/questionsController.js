@@ -1,4 +1,4 @@
-const questionnaireFullPath = '/REACT REDUX/BackEnd/JSON/Questionnaire.json'
+const questionnaireFullPath = '/JSON/Questionnaire.json'
 const { writeFile, readFile } = require("fs");
 const { errorRespose, BadRespose } = require('../config/errorStatus');
 const User = require('../models/User');
