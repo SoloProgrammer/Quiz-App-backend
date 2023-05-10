@@ -12,8 +12,8 @@ require('dotenv')
 
 app.use(express.json())
 
-
 const Allowed_Origins = process.env.ALLOWED_ORIGINS.split(', ');
+console.log(Allowed_Origins);
 app.use(cors({ origin: Allowed_Origins }))
 
 const PORT = process.env.PORT || 8080
