@@ -40,15 +40,4 @@ const getUser = async (req, res) => {
     }
 }
 
-const submitTest = async (req, res) => {
-    try {
-        let { score } = req.body;
-        let updatedUser = await User.findByIdAndUpdate(req.user._id, { score, isSubmitted: true },{new:true});
-        console.log(updatedUser);
-        res.status(200).json({status:true})
-    } catch (error) {
-        return errorRespose(res, false, error)
-    }
-}
-
-module.exports = { getUser, createUser, submitTest }
+module.exports = { getUser, createUser }

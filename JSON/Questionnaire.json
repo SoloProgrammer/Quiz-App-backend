@@ -1,95 +1,98 @@
 {
-    "questionnaire_id":"React_and_JS_skills_questionnaire",
-    "title":"Assesment of React & Javascript skills",
-    "time-required":"15 minutes",
-    "comments":"This questionnaire is designed to access your level of proficiency in React and Javascript.",
-    "questions":[
+  "questionnaire_id": "React_and_JS_skills_questionnaire",
+  "title": "Assesment of React & Javascript skills",
+  "timeLimit": {
+    "minutes": 15,
+    "hours": 0
+  },
+  "description": "This questionnaire is designed to access your level of proficiency in React and Javascript.",
+  "each_point": 10,
+  "questions": [
+    {
+      "id": 1,
+      "question": "What makes React faster?",
+      "category": "React",
+      "options": [
         {
-            "id":1,
-            "question":"What makes React faster?",
-            "category":"React",
-            "answers":[
-                {
-                    "id":1,
-                    "answer":"Virtual Dom",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"One way data binding",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"Reusing Components",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"Duplicating Code",
-                    "isCorrect":false
-                }
-            ],
-            "comment":""
+          "id": 1,
+          "option": "Virtual Dom"
         },
         {
-            "id":2,
-            "question":"What is state in React?",
-            "category":"React",
-            "answers":[
-                {
-                    "id":1,
-                    "answer":"Normal variable",
-                    "isCorrect":false
-                },
-                {
-                    "id":1,
-                    "answer":"Vaiable to store only objects",
-                    "isCorrect":false
-                },
-                {
-                    "id":1,
-                    "answer":"Variable to store data of any types",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"Variable that causes rerendering after updation",
-                    "isCorrect":true
-                }
-            ],
-            "comment":""
+          "id": 2,
+          "option": "One way data binding"
         },
         {
-            "id":3,
-            "question":"What is compomnent in React",
-            "category":"React",
-            "answers":[
-                {
-                    "id":1,
-                    "answer":"Its a regular JS function",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"Its an HTML element",
-                    "isCorrect":false
-                },
-                {
-                    "id":1,
-                    "answer":"It's a function that returns the JSX",
-                    "isCorrect":true
-                },
-                {
-                    "id":1,
-                    "answer":"It is renposible for rendering our app's UI",
-                    "isCorrect":true
-                }
-            ],
-            "comment":""
+          "id": 3,
+          "option": "Reusing Components"
+        },
+        {
+          "id": 4,
+          "option": "Duplicating Code"
         }
-
-    ],
-    "started":false,
-    "ended":false
+      ],
+      "correctAnswers": [
+        "Virtual Dom",
+        "One way data binding",
+        "Reusing Components"
+      ],
+      "comments": []
+    },
+    {
+      "id": 2,
+      "question": "What is state in React?",
+      "category": "React",
+      "options": [
+        {
+          "id": 1,
+          "option": "Normal variable"
+        },
+        {
+          "id": 2,
+          "option": "Vaiable to store only objects"
+        },
+        {
+          "id": 3,
+          "option": "Variable to store data of any types"
+        },
+        {
+          "id": 4,
+          "option": "Variable that causes rerendering after updation"
+        }
+      ],
+      "correctAnswers": [
+        "Variable to store data of any types",
+        "Variable that causes rerendering after updation"
+      ],
+      "comments": []
+    },
+    {
+      "id": 3,
+      "question": "What is compomnent in React",
+      "category": "React",
+      "options": [
+        {
+          "id": 1,
+          "option": "Its a regular JS function"
+        },
+        {
+          "id": 2,
+          "option": "Its an HTML element"
+        },
+        {
+          "id": 3,
+          "option": "It's a function that returns the JSX"
+        },
+        {
+          "id": 4,
+          "option": "It is renposible for rendering our app's UI"
+        }
+      ],
+      "correctAnswers": [
+        "Its a regular JS function",
+        "It's a function that returns the JSX",
+        "It is renposible for rendering our app's UI"
+      ],
+      "comments": []
+    }
+  ]
 }
