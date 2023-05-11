@@ -1,30 +1,83 @@
-// const path = require('path')
+// const questionnaireFullPath = '/opt/render/project/src/JSON/Questionnaire.json'
 
-const questionnaireFullPath = '/opt/render/project/src/JSON/Questionnaire.json'
-// const questionnaireFullPath = '/Quiz-App/BackEnd/JSON/Questionnaire.json'
+const questionnaireFullPath = '/Quiz-App/BackEnd/JSON/Questionnaire.json'
 const { writeFile, readFile } = require("fs");
-const { errorRespose, BadRespose } = require('../config/errorStatus');
+const { errorRespose, BadRespose, alertResponse } = require('../config/errorStatus');
 const User = require('../models/User');
+const Questionnaire = require('../models/Questionnaire');
+var mongoose = require('mongoose');
+const { ObjectId } = mongoose
+
+const createQuestionnaire = async (req, res) => {
+
+    try {
+        let { title, description, each_point, questionnaire_id, timeLimit } = req.body;
+
+        if (!title) return alertResponse(res, "Please provide the title of the Questionnaire!")
+        if (!description) return alertResponse(res, "Please provide the description of the Questionnaire!")
+        if (!each_point) return alertResponse(res, "Please provide the points per question of the Questionnaire!")
+        if (!questionnaire_id) return alertResponse(res, "Please provide the questionnaire_id of the Questionnaire!")
+        if (!timeLimit) return alertResponse(res, "Please provide the timeLimit of the Questionnaire!")
+
+        const questionnaire = await new Questionnaire({ ...req.body, createdBy: req.user._id }).save();
+
+        res.send(questionnaire)
+    } catch (error) {
+        return errorRespose(res, false, error)
+    }
+
+}
+
+const addQuestion = async (req, res) => {
+
+    try {
+        const { questionnaire_id } = req.params
+
+        let { question, category, options, correctAnswers } = req.body;
+
+        if (!question) return alertResponse(res, "Please provide the question")
+        if (!category) return alertResponse(res, "Please provide the category of the question")
+        if (options.length < 4) return alertResponse(res, "Please provide 4 options")
+        if (!correctAnswers.length) return alertResponse(res, "Please provide the correctAnswers")
+
+        const optionsObjArray = []
+        options.forEach((option, i) => {
+            let opt = {}
+            opt.id = i + 1
+            opt.option = option
+            optionsObjArray.push(opt)
+        })
+
+        const questionObj = {
+            question, category, options: optionsObjArray, correctAnswers, comments: []
+        }
+
+        const updatedQuestionnaire = await Questionnaire.findByIdAndUpdate(questionnaire_id, { $push: { questions: questionObj } }, { new: true });
+
+        res.json({ status: true, message: "Question added successfully", updatedQuestionnaire })
+    } catch (error) {
+        return errorRespose(res, false, error)
+    }
+}
 
 const getQuestionnaire = async (req, res) => {
 
     try {
-        readFile(questionnaireFullPath, async (err, questionnaireBuffer) => {
+        const { questionnaire_id } = req.params
 
-            if (err) return BadRespose(res, false, err.message)
+        let questionnaire = await Questionnaire.findOne({ questionnaire_id });
 
-            let questionnaire = JSON.parse(questionnaireBuffer)
-            let questions = questionnaire.questions;
+        let questions = questionnaire.questions;
 
-            questions = questions.map(q => {
-                delete q.correctAnswers
-                return q
-            });
+        questions = questions.map(q => {
+            delete q.correctAnswers
+            return q
+        });
 
-            questionnaire.questions = questions
+        questionnaire.questions = questions
 
-            res.json({ questionnaire , status: true })
-        })
+        res.json({ questionnaire, status: true })
+
     } catch (error) {
         return errorRespose(res, false, error)
     }
@@ -33,61 +86,33 @@ const getQuestionnaire = async (req, res) => {
 
 const comment = async (req, res) => {
 
-    const { comment } = req.body
-    const { qId } = req.params
-
     try {
+        const { comment } = req.body
+        const { qId, questionnaire_id } = req.params
 
-        readFile(questionnaireFullPath, async (err, questionnaireBuffer) => {
+        const user = await User.findById(req.user._id)
 
-            if (err) return BadRespose(res, false, err.message)
+        const commentObj = {
+            comment, user: user.name, uId: user._id
+        }
 
-            const user = await User.findById(req.user._id);
+        let ObjectqId = new mongoose.Types.ObjectId(qId)
 
-            // console.log(user._id);
+        let questionnaire = await Questionnaire.findOne({ questionnaire_id });
 
-            let questionnaire = JSON.parse(questionnaireBuffer)
-            let questions = questionnaire.questions;
+        let commentsByQueId = questionnaire.questions.filter(q => { if (String(q._id) === String(ObjectqId)) return q })[0].comments;
 
-            questions = questions.map(q => {
-                if (q.id === parseInt(qId)) {
-                    if (q.comments.length > 0) {
-                        // console.log(q.comments,typeof String(user._id), typeof q.comments[0].uId);
-                        if (q.comments.map(comm => comm.uId).includes(String(user._id))) {
-                            q.comments = q.comments.filter(comm => comm.uId !== String(user._id))
-                            // console.log("......................................", q.comments);
-                        }
-                    }
-                    q.comments.push({ user: user.name, uId: user._id, comment })
-                }
-                return q;
-            })
+        if (commentsByQueId.map(comm => String(comm.uId)).includes(String(user._id))) {
 
-            questionnaire.questions = questions
+            let commentObj = commentsByQueId.filter(comm => String(comm.uId) === String(user._id))[0]
+            await Questionnaire.updateOne({ questionnaire_id, "questions._id": ObjectqId }, { $pull: { "questions.$.comments": commentObj } })
+        }
 
-            writeFile(questionnaireFullPath, JSON.stringify(questionnaire, null, 2), (err) => {
-                if (err) {
-                    console.log("Failed to write updated data to questionnaireData file");
-                    return;
-                }
-                console.log("Updated questionnaireData file successfully");
-            })
+        await Questionnaire.updateOne({ questionnaire_id, "questions._id": ObjectqId }, { $push: { "questions.$.comments": commentObj } })
 
-            // removing correctAnswer array before sending to the client......
+        let updatedQuestionnaire = await Questionnaire.findOne({ questionnaire_id })
 
-            questions = [...questionnaire.questions];
-
-            questions = questions.map(q => {
-                delete q.correctAnswers
-                return q
-            });
-
-            questionnaire.questions = questions
-
-            res.status(200).json({ status: true, updatedQuestionnaire: questionnaire })
-
-        })
-
+        res.json({ status: true, updatedQuestionnaire })
 
     } catch (error) {
         return errorRespose(res, false, error)
@@ -97,54 +122,50 @@ const comment = async (req, res) => {
 const submitTest = async (req, res) => {
 
     try {
+        let { selectedOptionsbyQue } = req.body;
+        const { questionnaire_id } = req.params
 
-        readFile(questionnaireFullPath, async (err, questionnaireBuffer) => {
+        let questionnaire = await Questionnaire.findOne({ questionnaire_id });
 
-            if (err) return BadRespose(res, false, err.message)
+        let questions = questionnaire.questions
 
-            if (err) throw Error("Error reading the file: ", err.message)
+        console.log(selectedOptionsbyQue);
 
-            let { selectedOptionsbyQue } = req.body;
+        // console.log(selectedOptionsbyQue,questions);
 
-            let questionnaire = JSON.parse(questionnaireBuffer)
+        let score = 0;
+        Object.keys(selectedOptionsbyQue).map(qId => {   // qId :- questionId
 
-            let questions = questionnaire.questions
-
-            // console.log(selectedOptionsbyQue,questions);
-
-            let score = 0;
-            Object.keys(selectedOptionsbyQue).map(qId => {   // qId :- questionId
-
-                // console.log(k,questions.filter(q => q.id === parseInt(k)));
-                // console.log((questions.filter(q => q.id === parseInt(k))[0]));
+            // console.log(k,questions.filter(q => q.id === parseInt(k)));
+            // console.log((questions.filter(q => q.id === parseInt(k))[0]));
 
 
-                // console.log("------------------", questions.filter(q => q.id === parseInt(qId)));
+            // console.log("------------------", questions.filter(q => q.id === parseInt(qId)));
 
-                const correctAnswersbyQueId = questions.filter(q => q.id === parseInt(qId))[0].correctAnswers
-                let count = 0;
+            const correctAnswersbyQueId = questions.filter(q => String(q._id) === qId)[0].correctAnswers
+            let count = 0;
 
-                // console.log("...", correctAnswersbyQueId);
+            // console.log("...", correctAnswersbyQueId);
 
-                if (correctAnswersbyQueId.length === selectedOptionsbyQue[qId].length) {
-                    selectedOptionsbyQue[qId].forEach(ans => {
-                        if (correctAnswersbyQueId.indexOf(ans) !== -1) {
-                            count++
-                        }
-                        if (count === correctAnswersbyQueId.length) {
-                            score += questionnaire.each_point
-                        }
-                    })
-                }
-            })
-
-            await User.findByIdAndUpdate(req.user._id, { score, isSubmitted: true }, { new: true });
-            res.status(200).json({ status: true, message: "Your Test has been submitted", score })
-
+            if (correctAnswersbyQueId.length === selectedOptionsbyQue[qId].length) {
+                selectedOptionsbyQue[qId].forEach(ans => {
+                    if (correctAnswersbyQueId.indexOf(ans) !== -1) {
+                        count++
+                    }
+                    if (count === correctAnswersbyQueId.length) {
+                        score += questionnaire.each_point
+                    }
+                })
+            }
         })
+
+        await User.findByIdAndUpdate(req.user._id, { score, isSubmitted: true }, { new: true });
+        res.status(200).json({ status: true, message: "Your Test has been submitted", score })
+
+
     } catch (error) {
         return errorRespose(res, false, error)
     }
 }
 
-module.exports = { getQuestionnaire, comment, submitTest }
+module.exports = { getQuestionnaire, comment, submitTest, createQuestionnaire, addQuestion }

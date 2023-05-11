@@ -5,4 +5,8 @@ const BadRespose = (res, status, msg) => {
     return res.status(400).json({ status, message: msg })
 }
 
-module.exports = { errorRespose, BadRespose }
+const alertResponse = (res, message) => {
+    res.json({ status: false, message: message })
+}
+
+module.exports = { errorRespose, BadRespose, alertResponse }
