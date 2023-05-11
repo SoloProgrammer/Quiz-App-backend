@@ -1,7 +1,7 @@
 const path = require('path')
 
-// const questionnaireFullPath = path.resolve(__dirname, 'JSON', 'Questionnaire.json')
-const questionnaireFullPath = '/Quiz-App/BackEnd/JSON/Questionnaire.json'
+const questionnaireFullPath = path.resolve(__dirname, 'JSON', 'Questionnaire.json')
+// const questionnaireFullPath = '/Quiz-App/BackEnd/JSON/Questionnaire.json'
 const { writeFile, readFile } = require("fs");
 const { errorRespose, BadRespose } = require('../config/errorStatus');
 const User = require('../models/User');
