@@ -51,6 +51,15 @@ const addQuestion = async (req, res) => {
 
         const updatedQuestionnaire = await Questionnaire.findByIdAndUpdate(questionnaire_id, { $push: { questions: questionObj } }, { new: true });
 
+        let questions = updatedQuestionnaire.questions;
+
+        questions = questions.map(q => {
+            delete q.correctAnswers
+            return q
+        });
+
+        updatedQuestionnaire.questions = questions
+
         res.json({ status: true, message: "Question added successfully", updatedQuestionnaire })
     } catch (error) {
         return errorRespose(res, false, error)
@@ -108,6 +117,15 @@ const comment = async (req, res) => {
         await Questionnaire.updateOne({ questionnaire_id, "questions._id": ObjectqId }, { $push: { "questions.$.comments": commentObj } })
 
         let updatedQuestionnaire = await Questionnaire.findOne({ questionnaire_id })
+
+        let questions = updatedQuestionnaire.questions;
+
+        questions = questions.map(q => {
+            delete q.correctAnswers
+            return q
+        });
+
+        updatedQuestionnaire.questions = questions
 
         res.json({ status: true, updatedQuestionnaire })
 
