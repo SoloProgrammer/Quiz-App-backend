@@ -1,4 +1,4 @@
-const questionnaireFullPath = '/SoloProgrammer/Quiz-App-backend/tree/main/JSON'
+const questionnaireFullPath = '/Quiz-App-backend/JSON/Questionnaire.json'
 const { writeFile, readFile } = require("fs");
 const { errorRespose, BadRespose } = require('../config/errorStatus');
 const User = require('../models/User');
