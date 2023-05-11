@@ -1,12 +1,9 @@
 // const questionnaireFullPath = '/opt/render/project/src/JSON/Questionnaire.json'
 
-const questionnaireFullPath = '/Quiz-App/BackEnd/JSON/Questionnaire.json'
-const { writeFile, readFile } = require("fs");
-const { errorRespose, BadRespose, alertResponse } = require('../config/errorStatus');
+const { errorRespose, alertResponse } = require('../config/errorStatus');
 const User = require('../models/User');
 const Questionnaire = require('../models/Questionnaire');
-var mongoose = require('mongoose');
-const { ObjectId } = mongoose
+const mongoose = require('mongoose');
 
 const createQuestionnaire = async (req, res) => {
 
