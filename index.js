@@ -18,6 +18,9 @@ app.use(cors({ origin: Allowed_Origins }))
 
 const PORT = process.env.PORT || 8080
 
+const path = require('path')
+app.use(express.static(path.join(__dirname, './JSON')));
+
 app.get('/', (req, res) => {
     res.send(`Server is running on PORT ${PORT}..... <a href="http://localhost:3000">Click here</a> to visit FrontEnd`)
 })
