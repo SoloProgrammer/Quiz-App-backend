@@ -51,6 +51,8 @@ const addQuestion = async (req, res) => {
 
         const updatedQuestionnaire = await Questionnaire.findByIdAndUpdate(questionnaire_id, { $push: { questions: questionObj } }, { new: true });
 
+        // Removing correctAnswers from the Questionnaire before sending to the client
+
         let questions = updatedQuestionnaire.questions;
 
         questions = questions.map(q => {
@@ -72,6 +74,8 @@ const getQuestionnaire = async (req, res) => {
         const { questionnaire_id } = req.params
 
         let questionnaire = await Questionnaire.findOne({ questionnaire_id });
+
+        // Removing correctAnswers from the Questionnaire before sending to the client
 
         let questions = questionnaire.questions;
 
@@ -118,6 +122,8 @@ const comment = async (req, res) => {
 
         let updatedQuestionnaire = await Questionnaire.findOne({ questionnaire_id })
 
+        // Removing correctAnswers from the Questionnaire before sending to the client
+
         let questions = updatedQuestionnaire.questions;
 
         questions = questions.map(q => {
@@ -144,7 +150,7 @@ const submitTest = async (req, res) => {
 
         let questions = questionnaire.questions
 
-        console.log(selectedOptionsbyQue);
+        // console.log(selectedOptionsbyQue);
 
         // console.log(selectedOptionsbyQue,questions);
 
