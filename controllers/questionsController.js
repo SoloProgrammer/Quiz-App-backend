@@ -53,7 +53,7 @@ const addQuestion = async (req, res) => {
 
         // Removing correctAnswers from the Questionnaire before sending to the client
 
-        let questions = updatedQuestionnaire.questions;
+        let questions = updatedQuestionnaire.questions.toObject();
 
         questions = questions.map(q => {
             delete q.correctAnswers
@@ -77,7 +77,7 @@ const getQuestionnaire = async (req, res) => {
 
         // Removing correctAnswers from the Questionnaire before sending to the client
 
-        let questions = questionnaire.questions;
+        let questions = questionnaire.questions.toObject();
 
         questions = questions.map(q => {
             delete q.correctAnswers
@@ -124,7 +124,7 @@ const comment = async (req, res) => {
 
         // Removing correctAnswers from the Questionnaire before sending to the client
 
-        let questions = updatedQuestionnaire.questions;
+        let questions = updatedQuestionnaire.questions.toObject();
 
         questions = questions.map(q => {
             delete q.correctAnswers
