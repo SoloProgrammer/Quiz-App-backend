@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { genSalt, hash, compare } = require('bcryptjs')
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -8,21 +9,40 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         trim: true,
-        unique:true
+        unique: true
     },
-    score: {
-        type: Number,
-        default:0
+    password: {
+        type: String,
+        required: true
     },
-    isStarted: {
-        type: Boolean,
-        default: false
+    avatar: {
+        type: String,
+        default: "https://res.cloudinary.com/dvzjzf36i/image/upload/v1679814483/wxrvucwq93ovrswfpsk3.png",
     },
-    isSubmitted: {
-        type: Boolean,
-        default: false
-    }
+    techInt: [],
+    badges: [{
+        badge: {
+            type: String
+        },
+        quiz: {
+            type: mongoose.Types.ObjectId,
+            ref: 'questionnaire'
+        }
+    }],
+    score: {},
 }, { timestamps: true });
+
+UserSchema.methods.comparePassword = async function (enteredPass) {
+    return compare(enteredPass, this.password)
+}
+
+UserSchema.pre('save', async function (next) {
+    let saltLen = 10
+    if (!this.isModified) next()
+
+    const salt = await genSalt(saltLen);
+    this.password = await hash(this.password, salt)
+})
 
 const User = mongoose.model('users', UserSchema);
 module.exports = User

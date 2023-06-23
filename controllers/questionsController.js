@@ -4,16 +4,17 @@ const { errorRespose, alertResponse } = require('../config/errorStatus');
 const User = require('../models/User');
 const Questionnaire = require('../models/Questionnaire');
 const mongoose = require('mongoose');
+const Quiz = require('../models/Quiz');
 
 const createQuestionnaire = async (req, res) => {
 
     try {
-        let { title, description, each_point, questionnaire_id, timeLimit } = req.body;
+        let { title, description, each_point, slug, timeLimit } = req.body;
 
         if (!title) return alertResponse(res, "Please provide the title of the Questionnaire!")
         if (!description) return alertResponse(res, "Please provide the description of the Questionnaire!")
         if (!each_point) return alertResponse(res, "Please provide the points per question of the Questionnaire!")
-        if (!questionnaire_id) return alertResponse(res, "Please provide the questionnaire_id of the Questionnaire!")
+        if (!slug) return alertResponse(res, "Please provide the slug of the Questionnaire!")
         if (!timeLimit) return alertResponse(res, "Please provide the timeLimit of the Questionnaire!")
 
         const questionnaire = await new Questionnaire({ ...req.body, createdBy: req.user._id }).save();
@@ -28,10 +29,11 @@ const createQuestionnaire = async (req, res) => {
 const addQuestion = async (req, res) => {
 
     try {
-        const { questionnaire_id } = req.params
+        const { quizId } = req.params
 
         let { question, category, options, correctAnswers } = req.body;
 
+        if (!quizId) return alertResponse(res, "Please provide the quizId with the request params")
         if (!question) return alertResponse(res, "Please provide the question")
         if (!category) return alertResponse(res, "Please provide the category of the question")
         if (options.length < 4) return alertResponse(res, "Please provide 4 options")
@@ -46,23 +48,13 @@ const addQuestion = async (req, res) => {
         })
 
         const questionObj = {
-            question, category, options: optionsObjArray, correctAnswers, comments: []
+            question, category, options: optionsObjArray, correctAnswers, comments: [], quizId
         }
 
-        const updatedQuestionnaire = await Questionnaire.findByIdAndUpdate(questionnaire_id, { $push: { questions: questionObj } }, { new: true });
+        const createdQuestion = await new Questionnaire(questionObj).save()
 
-        // Removing correctAnswers from the Questionnaire before sending to the client
+        res.json({ status: true, message: "Question added successfully", createdQuestion })
 
-        let questions = updatedQuestionnaire.questions.toObject();
-
-        questions = questions.map(q => {
-            delete q.correctAnswers
-            return q
-        });
-
-        updatedQuestionnaire.questions = questions
-
-        res.json({ status: true, message: "Question added successfully", updatedQuestionnaire })
     } catch (error) {
         return errorRespose(res, false, error)
     }
@@ -71,27 +63,27 @@ const addQuestion = async (req, res) => {
 const getQuestionnaire = async (req, res) => {
 
     try {
-        const { questionnaire_id } = req.params
+        let { quizId } = req.params
 
-        let questionnaire = await Questionnaire.findOne({ questionnaire_id });
+        let questions = await Questionnaire.find({ quizId });
+
+        if (!questions) return res.json([])
+
+        await Quiz.findByIdAndUpdate(quizId, { $addToSet: { isStarted: req.user._id } })
 
         // Removing correctAnswers from the Questionnaire before sending to the client
 
-        let questions = questionnaire.questions.toObject();
-
         questions = questions.map(q => {
-            delete q.correctAnswers
-            return q
+            let Copyq = q.toObject()
+            delete Copyq.correctAnswers
+            return Copyq
         });
 
-        questionnaire.questions = questions
-
-        res.json({ questionnaire, status: true })
+        res.json({ questions, status: true })
 
     } catch (error) {
         return errorRespose(res, false, error)
     }
-
 }
 
 const comment = async (req, res) => {
@@ -103,14 +95,16 @@ const comment = async (req, res) => {
         const user = await User.findById(req.user._id)
 
         const commentObj = {
-            comment, user: user.name, uId: user._id
+            comment, user: user.name, uId: user._id, comm_id: Date.now()
         }
 
         let ObjectqId = new mongoose.Types.ObjectId(qId)
 
         let questionnaire = await Questionnaire.findOne({ questionnaire_id });
 
-        let commentsByQueId = questionnaire.questions.filter(q => { if (String(q._id) === String(ObjectqId)) return q })[0].comments;
+        // let commentsByQueId = questionnaire.questions.filter(q => { if (String(q._id) === String(ObjectqId)) return q })[0].comments;
+
+        let commentsByQueId = questionnaire.questions.filter(q => String(q._id) === String(ObjectqId))[0].comments;
 
         if (commentsByQueId.map(comm => String(comm.uId)).includes(String(user._id))) {
 
