@@ -1,6 +1,7 @@
 const { alertResponse, errorRespose } = require('../config/errorStatus');
-// const Quiz = require('../models/Quiz');
-const Quiz = require('../models/Quiz')
+const Questionnaire = require('../models/Questionnaire');
+const Quiz = require('../models/Quiz');
+const User = require('../models/User');
 
 const addQuiz = async (req, res) => {
 
@@ -64,4 +65,67 @@ const quiz = async (req, res) => {
 
 }
 
-module.exports = { addQuiz, quizes, quiz }
+const submitQuiz = async (req, res) => {
+
+    try {
+        let { selectedOptionsbyQue } = req.body;
+        const { quizId } = req.params
+
+        let questions = await Questionnaire.find({ quizId });
+
+        const quiz = await Quiz.findById(quizId);
+
+        // console.log(selectedOptionsbyQue);
+
+        // console.log(selectedOptionsbyQue,questions);
+
+        let score = 0;
+        Object.keys(selectedOptionsbyQue).map(qId => {   // qId :- questionId
+
+            // console.log(k,questions.filter(q => q.id === parseInt(k)));
+            // console.log((questions.filter(q => q.id === parseInt(k))[0]));
+
+
+            // console.log("------------------", questions.filter(q => q.id === parseInt(qId)));
+
+            const correctAnswersbyQueId = questions.filter(q => String(q._id) === qId)[0].correctAnswers
+            let count = 0;
+
+            // console.log("...", correctAnswersbyQueId);
+
+            if (correctAnswersbyQueId.length === selectedOptionsbyQue[qId].length) {
+                selectedOptionsbyQue[qId].forEach(ans => {
+                    if (correctAnswersbyQueId.indexOf(ans) !== -1) {
+                        count++
+                    }
+                    if (count === correctAnswersbyQueId.length) {
+                        score += quiz.each_point
+                    }
+                })
+            }
+        })
+
+        const scoreObj = {
+            [quizId]: score
+        }
+        let badge = (score === 100 && "gold" || score === 90 && "silver" || score === 80 && "bronze")
+
+        if (badge) {
+            const badgeObj = {
+                badge,
+                quiz: quizId
+            }
+            await User.findByIdAndUpdate(req.user._id, { $push: { badges: badgeObj } }, { new: true });
+        }
+
+        let user = await User.findByIdAndUpdate(req.user._id, { $push: { score: scoreObj } }, { new: true }).select('-password');
+
+        res.status(200).json({ status: true, message: "Your Quiz Has Been Submitted!", score, user })
+
+
+    } catch (error) {
+        return errorRespose(res, false, error)
+    }
+}
+
+module.exports = { addQuiz, quizes, quiz, submitQuiz }

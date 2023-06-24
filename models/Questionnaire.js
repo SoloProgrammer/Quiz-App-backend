@@ -6,7 +6,18 @@ const QuestionnaireSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "quiz"
     },
-    "comments": [],
+    "comments": [{
+        comment:{
+            type:String
+        },
+        userId:{
+            type:mongoose.Types.ObjectId,
+            ref:"users"
+        },
+        commId:{
+            type:Number,
+        }
+    }],
     "category": {
         type: String,
         required: true

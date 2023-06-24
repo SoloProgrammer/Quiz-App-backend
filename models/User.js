@@ -22,14 +22,15 @@ const UserSchema = new mongoose.Schema({
     techInt: [],
     badges: [{
         badge: {
-            type: String
+            type: String,
+            enum: ["gold", "silver", "bronze"]
         },
         quiz: {
             type: mongoose.Types.ObjectId,
             ref: 'questionnaire'
         }
     }],
-    score: {},
+    score: [{}],
 }, { timestamps: true });
 
 UserSchema.methods.comparePassword = async function (enteredPass) {

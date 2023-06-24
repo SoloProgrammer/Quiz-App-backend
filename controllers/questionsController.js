@@ -69,7 +69,7 @@ const getQuestionnaire = async (req, res) => {
 
         if (!questions) return res.json([])
 
-        await Quiz.findByIdAndUpdate(quizId, { $addToSet: { isStarted: req.user._id } })
+        // await Quiz.findByIdAndUpdate(quizId, { $addToSet: { isStarted: req.user._id } })
 
         // Removing correctAnswers from the Questionnaire before sending to the client
 
@@ -134,53 +134,5 @@ const comment = async (req, res) => {
     }
 }
 
-const submitTest = async (req, res) => {
 
-    try {
-        let { selectedOptionsbyQue } = req.body;
-        const { questionnaire_id } = req.params
-
-        let questionnaire = await Questionnaire.findOne({ questionnaire_id });
-
-        let questions = questionnaire.questions
-
-        // console.log(selectedOptionsbyQue);
-
-        // console.log(selectedOptionsbyQue,questions);
-
-        let score = 0;
-        Object.keys(selectedOptionsbyQue).map(qId => {   // qId :- questionId
-
-            // console.log(k,questions.filter(q => q.id === parseInt(k)));
-            // console.log((questions.filter(q => q.id === parseInt(k))[0]));
-
-
-            // console.log("------------------", questions.filter(q => q.id === parseInt(qId)));
-
-            const correctAnswersbyQueId = questions.filter(q => String(q._id) === qId)[0].correctAnswers
-            let count = 0;
-
-            // console.log("...", correctAnswersbyQueId);
-
-            if (correctAnswersbyQueId.length === selectedOptionsbyQue[qId].length) {
-                selectedOptionsbyQue[qId].forEach(ans => {
-                    if (correctAnswersbyQueId.indexOf(ans) !== -1) {
-                        count++
-                    }
-                    if (count === correctAnswersbyQueId.length) {
-                        score += questionnaire.each_point
-                    }
-                })
-            }
-        })
-
-        await User.findByIdAndUpdate(req.user._id, { score, isSubmitted: true }, { new: true });
-        res.status(200).json({ status: true, message: "Your Test has been submitted", score })
-
-
-    } catch (error) {
-        return errorRespose(res, false, error)
-    }
-}
-
-module.exports = { getQuestionnaire, comment, submitTest, createQuestionnaire, addQuestion }
+module.exports = { getQuestionnaire, comment, createQuestionnaire, addQuestion }
